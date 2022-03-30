@@ -1,0 +1,18 @@
+app:
+  name: "JByun"
+  mode: "dev"
+  port: 8080
+log:
+  level:  "debug"
+  filename:  "qkteam_api.logger"
+  max_size: 200
+  max_age:  30
+  max_backup:  7
+mysql:
+  host: "127.0.0.1"
+  port: 3306
+  user: "root"
+  password: "chaihaojian849904"
+  dbname: "qkteam"
+  max_open_conns: 200
+  max_idle_conns: 50
