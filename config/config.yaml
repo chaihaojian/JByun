@@ -2,12 +2,16 @@ app:
   name: "JByun"
   mode: "dev"
   port: 8080
+  start_time: "2022-04-18"
+  machine_id: 1
+
 logger:
   level:  "debug"
   filename:  "./JByun.log"
   max_size: 200
   max_age:  30
   max_backup:  7
+
 mysql:
   host: "127.0.0.1"
   port: 3306

@@ -2,12 +2,15 @@ package snowflake
 
 import (
 	sf "github.com/bwmarrin/snowflake"
+	"github.com/spf13/viper"
 	"time"
 )
 
 var node *sf.Node
 
-func Init(startTime string, machineID int64) (err error) {
+func Init() (err error) {
+	startTime := viper.GetString("app.start_time")
+	machineID := viper.GetInt64("app.machine_id")
 	var st time.Time
 	st, err = time.Parse("2006-01-02", startTime)
 	if err != nil {
