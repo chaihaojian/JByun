@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"JByun/controller"
 	"JByun/logger"
 	"net/http"
 
@@ -17,6 +18,8 @@ func Setup() *gin.Engine {
 			"message": "http server ok!",
 		})
 	})
+
+	r.POST("/signup", controller.SignUpHandler)
 
 	return r
 }
