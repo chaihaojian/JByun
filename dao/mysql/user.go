@@ -8,7 +8,7 @@ import (
 func CheckUserExist(phone string) (exist bool, err error) {
 	sqlStr := "select count(*) from user where phone = ?"
 	var count int
-	err = db.Get(count, sqlStr, phone)
+	err = db.Get(&count, sqlStr, phone)
 	if err != nil {
 		zap.L().Error("db.Get failed", zap.Error(err))
 		return false, err
