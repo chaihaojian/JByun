@@ -10,13 +10,20 @@ import (
 func SignUpHandler(c *gin.Context) {
 	//1.获取参数及参数校验
 	p := new(models.ParamSignUp)
-	if err := c.ShouldBindJSON(p); err != nil {
-		zap.L().Error("signup with invalid param", zap.Error(err))
-		ResponseErrorWithMsg(c, CodeInvalidParam, "signup with invalid param")
+	err := c.ShouldBind(p)
+	if err != nil {
+		zap.L().Error("sign up with invalid param", zap.Error(err))
+		ResponseErrorWithMsg(c, CodeInvalidParam, "sign up with invalid param")
 		return
 	}
 	//2.注册业务
-	logic.SignUp(p)
+	if err := logic.SignUp(p); err != nil {
+		if err.Error() == "user already exist" {
+			zap.L().Error("user already exist", zap.Error(err))
+		}
+		zap.L().Error("sign up failed", zap.Error(err))
+		ResponseErrorWithMsg(c, CodeError, "sign up failed")
+	}
 	//3.返回信息
 	ResponseSuccess(c, nil)
 }

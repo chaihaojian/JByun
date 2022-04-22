@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//Setup 注册路由
 func Setup() *gin.Engine {
 	r := gin.New()
 
