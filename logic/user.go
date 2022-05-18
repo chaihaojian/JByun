@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func SignUp(p *models.ParamSignUp) error {
+func Register(p *models.ParamSignUp) error {
 	//1.校验用户是否已存在
 	exist, err := mysql.CheckUserExist(p.Phone)
 	if err != nil {

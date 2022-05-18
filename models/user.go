@@ -9,6 +9,11 @@ type ParamSignUp struct {
 	RePassword string `json:"re_password" binding:"required,eqfield=Password"`
 }
 
+type ParamSignIn struct {
+	Username string `json:"user_name" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 type User struct {
 	UserID     int64
 	PhoneValid int

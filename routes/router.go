@@ -20,7 +20,8 @@ func Setup() *gin.Engine {
 		})
 	})
 
-	r.POST("/signup", controller.SignUpHandler)
+	r.POST("/register", controller.RegisterHandler)
+	r.POST("/login", controller.LoginHandler)
 
 	return r
 }
