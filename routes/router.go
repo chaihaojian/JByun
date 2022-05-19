@@ -27,6 +27,7 @@ func Setup() *gin.Engine {
 	file := r.Group("/file", middleware.JWTAuthMiddleware())
 	{
 		file.POST("/upload", controller.FileUpLoadHandler)
+		file.POST("/fastupload", controller.FastFileUpLoadHandler)
 		//file.POST("/delete", controller.FileDeleteHandler)
 		//file.POST("/update", controller.FileUpDateHandler)
 		//file.GET("/query", controller.FileQueryHandler)

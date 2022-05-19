@@ -12,6 +12,8 @@ const (
 	CodeNeedLogin
 
 	CodeInvalidFile
+
+	CodeFastUpLoadFailed
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -24,6 +26,8 @@ var codeMsgMap = map[ResCode]string{
 	CodeNeedLogin:    "need login",
 
 	CodeInvalidFile: "invalid file",
+
+	CodeFastUpLoadFailed: "fast upload failed",
 }
 
 func (c ResCode) Msg() string {

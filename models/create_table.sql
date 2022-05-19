@@ -28,3 +28,17 @@ CREATE TABLE `file` (
     UNIQUE KEY `idx_file_hash` (`file_sha1`),
     KEY `idx_status` (`status`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
+CREATE TABLE `user_file` (
+    `id` int(16) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `user_id` bigint(20) NOT NULL ,
+    `user_name` varchar(64) NOT NULL,
+    `file_sha1` varchar(64) NOT NULL DEFAULT '' ,
+    `file_size` bigint(20) DEFAULT '0' ,
+    `file_name` varchar(256) NOT NULL DEFAULT '' ,
+    `upload_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ,
+    `last_update` timestamp NULL DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP ,
+    `status` int(11) NOT NULL DEFAULT '0' ,
+    UNIQUE KEY `idx_user_file` (`user_id`, `file_sha1`, `file_name`),
+    KEY `idx_status` (`status`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;

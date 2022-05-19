@@ -15,7 +15,7 @@ type ParamSignIn struct {
 }
 
 type User struct {
-	UserID     int64
+	UserID     int64 `db:"id"`
 	PhoneValid int
 	EmailValid int
 	Gender     int

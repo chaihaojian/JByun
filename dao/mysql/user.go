@@ -31,7 +31,7 @@ func InsertUser(user *models.User) error {
 }
 
 func QueryUserByName(user *models.User) error {
-	sqlStr := "select username, password from user where username = ?"
+	sqlStr := "select id, username, password from user where username = ?"
 	err := db.Get(user, sqlStr, user.Username)
 	if err == sql.ErrNoRows {
 		return errors.New("user not exist")

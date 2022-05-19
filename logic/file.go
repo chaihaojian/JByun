@@ -4,6 +4,8 @@ import (
 	"JByun/dao/mysql"
 	"JByun/models"
 	"JByun/util"
+	"fmt"
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"io"
@@ -11,7 +13,7 @@ import (
 	"os"
 )
 
-func FileUpLoad(file multipart.File, header *multipart.FileHeader) error {
+func FileUpLoad(file multipart.File, header *multipart.FileHeader, userid int64, username string) error {
 	// header调用Filename方法，就可以得到文件名
 	filename := header.Filename
 
@@ -40,5 +42,42 @@ func FileUpLoad(file multipart.File, header *multipart.FileHeader) error {
 		FileName: filename,
 		FileAddr: addr,
 	}
-	return mysql.OnFileUpLoad(fileMeta)
+	fmt.Println(fileMeta.FileSha1)
+	userFile := &models.UserFile{
+		UserID:   userid,
+		FileSize: fileMeta.FileSize,
+		UserName: username,
+		FileSha1: fileMeta.FileSha1,
+		FileName: fileMeta.FileName,
+	}
+	if err = mysql.InsertFile(fileMeta); err != nil {
+		zap.L().Error("mysql.InsertFile failed", zap.Error(err))
+		return err
+	}
+	if err = mysql.InsertUserFile(userFile); err != nil {
+		zap.L().Error("mysql.InsertUserFile failed", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func FastFileUpLoad(file *models.File, userid int64, username string) error {
+	//查询文件表若该文件已存在，触发秒传，插入用户文件表
+	if mysql.CheckFileExist(file) {
+		userFile := &models.UserFile{
+			UserID:   userid,
+			FileSize: file.FileSize,
+			UserName: username,
+			FileSha1: file.FileSha1,
+			FileName: file.FileName,
+		}
+		if err := mysql.InsertUserFile(userFile); err != nil {
+			zap.L().Error("mysql.InsertUserFile failed", zap.Error(err))
+			return err
+		}
+		return nil
+	}
+	//若不存在，秒传失败
+	return errors.New("file not exist")
 }
