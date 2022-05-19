@@ -3,6 +3,7 @@ package routes
 import (
 	"JByun/controller"
 	"JByun/logger"
+	"JByun/middleware"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ func Setup() *gin.Engine {
 
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 
-	r.GET("/", func(c *gin.Context) {
+	r.GET("/", middleware.JWTAuthMiddleware(), func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "http server ok!",
 		})

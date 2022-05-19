@@ -2,6 +2,8 @@ package mysql
 
 import (
 	"JByun/models"
+	"database/sql"
+	"errors"
 	"go.uber.org/zap"
 )
 
@@ -26,4 +28,17 @@ func InsertUser(user *models.User) error {
 		zap.L().Error("db.Exec failed", zap.Error(err))
 	}
 	return err
+}
+
+func QueryUserByName(user *models.User) error {
+	sqlStr := "select username, password from user where username = ?"
+	err := db.Get(user, sqlStr, user.Username)
+	if err == sql.ErrNoRows {
+		return errors.New("user not exist")
+	}
+	if err != nil {
+		zap.L().Error("db.Get failed", zap.Error(err))
+		return err
+	}
+	return nil
 }

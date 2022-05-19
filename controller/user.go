@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
+//RegisterHandler 用户注册
 func RegisterHandler(c *gin.Context) {
 	//1.获取参数及参数校验
 	p := new(models.ParamSignUp)
@@ -30,15 +31,23 @@ func RegisterHandler(c *gin.Context) {
 	ResponseSuccess(c, nil)
 }
 
+//LoginHandler 用户登陆
 func LoginHandler(c *gin.Context) {
 	//获取参数及参数校验
 	p := new(models.ParamSignIn)
-	//登陆逻辑
 	err := c.ShouldBindJSON(&p)
 	if err != nil {
 		zap.L().Error("login with invalid param", zap.Error(err))
-		ResponseErrorWithMsg(c, CodeInvalidParam, "sign up with invalid param")
+		ResponseErrorWithMsg(c, CodeInvalidParam, "login with invalid param")
+		return
+	}
+	//登陆业务
+	token, err := logic.Login(p)
+	if err != nil {
+		zap.L().Error("login failed", zap.Error(err))
+		ResponseErrorWithMsg(c, CodeError, "login failed")
 		return
 	}
 	//返回响应
+	ResponseSuccess(c, token)
 }
