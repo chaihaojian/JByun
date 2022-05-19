@@ -14,3 +14,17 @@ CREATE TABLE `user` (
     UNIQUE KEY `idx_phone` (`phone`) ,
     KEY `idx_status` (`status`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
+CREATE TABLE `file` (
+    `id` int(16) NOT NULL AUTO_INCREMENT ,
+    `file_sha1` char(40) NOT NULL DEFAULT '' ,
+    `file_name` varchar(256) NOT NULL DEFAULT '' ,
+    `file_size` bigint(20) DEFAULT '0' ,
+    `file_addr` varchar(1024) NOT NULL DEFAULT '' ,
+    `upload_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ,
+    `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
+    `status` int(16) NOT NULL DEFAULT '0' ,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_file_hash` (`file_sha1`),
+    KEY `idx_status` (`status`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;

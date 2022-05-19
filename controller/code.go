@@ -10,6 +10,8 @@ const (
 
 	CodeInvalidToken
 	CodeNeedLogin
+
+	CodeInvalidFile
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -20,6 +22,8 @@ var codeMsgMap = map[ResCode]string{
 
 	CodeInvalidToken: "invalid token",
 	CodeNeedLogin:    "need login",
+
+	CodeInvalidFile: "invalid file",
 }
 
 func (c ResCode) Msg() string {

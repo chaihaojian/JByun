@@ -20,3 +20,6 @@ mysql:
   dbname: "JByun"
   max_open_conns: 200
   max_idle_conns: 50
+
+file:
+  path: "/Users/admin/WorkSpace/download/"
