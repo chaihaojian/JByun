@@ -50,3 +50,36 @@ func FastFileUpLoadHandler(c *gin.Context) {
 	//返回响应
 	ResponseSuccess(c, nil)
 }
+
+func ChunkInitHandler(c *gin.Context) {
+	//获取参数及参数校验
+
+	//获取文件信息
+	f := new(models.ChunkInitParam)
+	if err := c.ShouldBindJSON(&f); err != nil {
+		zap.L().Error("c.ShouldBindJSON failed", zap.Error(err))
+		ResponseErrorWithMsg(c, CodeInvalidParam, "chunk upload with invalid param failed")
+	}
+	//获取当前用户
+	userid, _ := c.Get(CtxUserID)
+	username, _ := c.Get(CtxUserName)
+	u := &models.User{
+		UserID:   userid.(int64),
+		Username: username.(string),
+	}
+	//业务逻辑
+	if err := logic.ChunkInit(u, f); err != nil {
+		zap.L().Error("logic.ChunkInit failed", zap.Error(err))
+		ResponseErrorWithMsg(c, CodeServerBusy, "chunk upload init failed")
+	}
+	//返回初始化信息
+	ResponseSuccess(c, f)
+}
+
+func ChunkUpLoadHandler(c *gin.Context) {
+
+}
+
+func ChunkCompleteHandler(c *gin.Context) {
+
+}

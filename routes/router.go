@@ -28,6 +28,12 @@ func Setup() *gin.Engine {
 	{
 		file.POST("/upload", controller.FileUpLoadHandler)
 		file.POST("/fastupload", controller.FastFileUpLoadHandler)
+		chunk := file.Group("/chunk")
+		{
+			chunk.POST("/init", controller.ChunkInitHandler)
+			chunk.POST("/upload", controller.ChunkUpLoadHandler)
+			chunk.POST("/complete", controller.ChunkCompleteHandler)
+		}
 		//file.POST("/delete", controller.FileDeleteHandler)
 		//file.POST("/update", controller.FileUpDateHandler)
 		//file.GET("/query", controller.FileQueryHandler)

@@ -3,6 +3,7 @@ package main
 import (
 	"JByun/config"
 	"JByun/dao/mysql"
+	"JByun/dao/redis"
 	"JByun/logger"
 	"JByun/pkg/snowflake"
 	"JByun/routes"
@@ -28,6 +29,12 @@ func main() {
 		fmt.Printf("Init mysql faild, err:%v\n", err)
 	}
 	defer mysql.Close()
+
+	//初始化Redis连接
+	if err := redis.Init(); err != nil {
+		fmt.Printf("Init redis faild, err:%v\n", err)
+	}
+	defer redis.Close()
 
 	//初始化ID生成器
 	if err := snowflake.Init(); err != nil {

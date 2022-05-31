@@ -2,13 +2,16 @@ package logic
 
 import (
 	"JByun/dao/mysql"
+	"JByun/dao/redis"
 	"JByun/models"
+	"JByun/pkg/snowflake"
 	"JByun/util"
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"io"
+	"math"
 	"mime/multipart"
 	"os"
 )
@@ -80,4 +83,38 @@ func FastFileUpLoad(file *models.File, userid int64, username string) error {
 	}
 	//若不存在，秒传失败
 	return errors.New("file not exist")
+}
+
+func ChunkInit(user *models.User, f *models.ChunkInitParam) error {
+	//检查文件是否已存在，若已经存在，直接触发秒传
+	file := &models.File{
+		FileSha1: f.FileSha1,
+		FileSize: f.FileSize,
+		FileName: f.FileName,
+	}
+	if mysql.CheckFileExist(file) {
+		userFile := &models.UserFile{
+			UserID:   user.UserID,
+			FileSize: file.FileSize,
+			UserName: user.Username,
+			FileSha1: file.FileSha1,
+			FileName: file.FileName,
+		}
+		if err := mysql.InsertUserFile(userFile); err != nil {
+			zap.L().Error("mysql.InsertUserFile failed", zap.Error(err))
+			return err
+		}
+		return nil
+	}
+	//若不存在，初始化分块上传信息，并返回
+	//初始化分块信息
+	f.UpLoadID = snowflake.GenID()
+	f.ChunkSize = viper.Get("chunk.size").(int64)
+	f.ChunkCount = int64(math.Ceil(float64(f.FileSize) / float64(f.ChunkSize)))
+	//将分块信息保存进redis
+	if err := redis.InsertChunkInfo(f); err != nil {
+		zap.L().Error("redis.InsertChunkInfo failed", zap.Error(err))
+		return err
+	}
+	return nil
 }
