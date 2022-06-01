@@ -67,11 +67,13 @@ func ChunkInitHandler(c *gin.Context) {
 		UserID:   userid.(int64),
 		Username: username.(string),
 	}
+
 	//业务逻辑
 	if err := logic.ChunkInit(u, f); err != nil {
 		zap.L().Error("logic.ChunkInit failed", zap.Error(err))
 		ResponseErrorWithMsg(c, CodeServerBusy, "chunk upload init failed")
 	}
+
 	//返回初始化信息
 	ResponseSuccess(c, f)
 }

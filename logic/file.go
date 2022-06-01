@@ -86,6 +86,7 @@ func FastFileUpLoad(file *models.File, userid int64, username string) error {
 }
 
 func ChunkInit(user *models.User, f *models.ChunkInitParam) error {
+	fmt.Println("in logic")
 	//检查文件是否已存在，若已经存在，直接触发秒传
 	file := &models.File{
 		FileSha1: f.FileSha1,
@@ -106,10 +107,11 @@ func ChunkInit(user *models.User, f *models.ChunkInitParam) error {
 		}
 		return nil
 	}
+
 	//若不存在，初始化分块上传信息，并返回
 	//初始化分块信息
 	f.UpLoadID = snowflake.GenID()
-	f.ChunkSize = viper.Get("chunk.size").(int64)
+	f.ChunkSize = viper.GetInt64("chunk.size")
 	f.ChunkCount = int64(math.Ceil(float64(f.FileSize) / float64(f.ChunkSize)))
 	//将分块信息保存进redis
 	if err := redis.InsertChunkInfo(f); err != nil {
