@@ -120,3 +120,29 @@ func ChunkInit(user *models.User, f *models.ChunkInitParam) error {
 	}
 	return nil
 }
+
+func ChunkUpLoad(file multipart.File, header *multipart.FileHeader, uploadID string, blockIdx string, userid int64, username string) error {
+	// 创建一个文件，文件名为filename，这里的返回值newFile也是一个File指针
+	addr := viper.GetString("file.path") + uploadID + blockIdx
+	newFile, err := os.Create(addr)
+	if err != nil {
+		zap.L().Error("os.Create failed", zap.Error(err))
+		return err
+	}
+
+	defer newFile.Close()
+
+	// 将file的内容拷贝到newFile
+	_, err = io.Copy(newFile, file)
+	if err != nil {
+		zap.L().Error("io.Copy failed", zap.Error(err))
+		return err
+	}
+
+	//更新redis缓存
+	if err = redis.UpDataBlockInfo(uploadID, blockIdx); err != nil {
+		zap.L().Error("redis.UpDataBlockInfo", zap.Error(err))
+		return err
+	}
+	return nil
+}

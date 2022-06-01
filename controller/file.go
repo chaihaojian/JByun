@@ -13,7 +13,7 @@ func FileUpLoadHandler(c *gin.Context) {
 	file, header, err := c.Request.FormFile("upload")
 	if err != nil {
 		zap.L().Error("c.Request.FormFile failed", zap.Error(err))
-		return
+		ResponseError(c, CodeError)
 	}
 
 	//获取当前用户信息
@@ -22,7 +22,7 @@ func FileUpLoadHandler(c *gin.Context) {
 
 	if err := logic.FileUpLoad(file, header, userid.(int64), username.(string)); err != nil {
 		zap.L().Error("logic.FileUpLoad failed", zap.Error(err))
-		return
+		ResponseError(c, CodeError)
 	}
 
 	ResponseSuccess(c, nil)
@@ -79,7 +79,27 @@ func ChunkInitHandler(c *gin.Context) {
 }
 
 func ChunkUpLoadHandler(c *gin.Context) {
+	//获取参数及校验
+	// FormFile方法会读取参数“upload”后面的文件名，返回值是一个File指针，和一个FileHeader指针，和一个err错误。
+	//获取分块文件
+	file, header, err := c.Request.FormFile("file_block")
+	if err != nil {
+		zap.L().Error("c.Request.FormFile failed", zap.Error(err))
+		ResponseError(c, CodeError)
+	}
+	uploadID := c.Request.Form.Get("upload_id")
+	blockIdx := c.Request.Form.Get("block_idx")
 
+	//获取当前用户信息
+	userid, _ := c.Get(CtxUserID)
+	username, _ := c.Get(CtxUserName)
+
+	if err := logic.ChunkUpLoad(file, header, uploadID, blockIdx, userid.(int64), username.(string)); err != nil {
+		zap.L().Error("logic.FileUpLoad failed", zap.Error(err))
+		ResponseError(c, CodeError)
+	}
+
+	ResponseSuccess(c, nil)
 }
 
 func ChunkCompleteHandler(c *gin.Context) {
