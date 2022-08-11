@@ -31,10 +31,15 @@ func InsertChunkInfo(f *models.ChunkInitParam) error {
 }
 
 func UpDataBlockInfo(uploadID string, blockIdx string) error {
-	err := rdb.HSet("MP_"+uploadID, "block_idx"+blockIdx, 1).Err()
+	err := rdb.HSet("MP_"+uploadID, "block_idx_"+blockIdx, 1).Err()
 	if err != nil {
 		zap.L().Error("rdb.HSet failed", zap.Error(err))
 		return err
 	}
 	return nil
+}
+
+func GetAllChunkInfo(uploadID string) (data map[string]string, err error) {
+	data = rdb.HGetAll("MP_" + uploadID).Val()
+	return data, nil
 }

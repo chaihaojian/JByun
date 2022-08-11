@@ -3,9 +3,11 @@ package controller
 import (
 	"JByun/logic"
 	"JByun/models"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"strconv"
 )
 
 func FileUpLoadHandler(c *gin.Context) {
@@ -95,7 +97,7 @@ func ChunkUpLoadHandler(c *gin.Context) {
 	username, _ := c.Get(CtxUserName)
 
 	if err := logic.ChunkUpLoad(file, header, uploadID, blockIdx, userid.(int64), username.(string)); err != nil {
-		zap.L().Error("logic.FileUpLoad failed", zap.Error(err))
+		zap.L().Error("logic.ChunkUpLoad failed", zap.Error(err))
 		ResponseError(c, CodeError)
 	}
 
@@ -103,5 +105,37 @@ func ChunkUpLoadHandler(c *gin.Context) {
 }
 
 func ChunkCompleteHandler(c *gin.Context) {
+	//获取参数及校验
+	uploadID := c.Request.Form.Get("upload_id")
+	fileName := c.Request.Form.Get("file_name")
+	filesize := c.Request.Form.Get("file_size")
+	fileSize, _ := strconv.ParseInt(filesize, 10, 64)
+	fileSha1 := c.Request.Form.Get("file_sha1")
+	file := &models.File{
+		FileSize: fileSize,
+		FileSha1: fileSha1,
+		FileName: fileName,
+		FileAddr: "",
+	}
+	fmt.Println(file)
 
+	userid, _ := c.Get(CtxUserID)
+	username, _ := c.Get(CtxUserName)
+	userFile := &models.UserFile{
+		UserID:   userid.(int64),
+		FileSize: fileSize,
+		UserName: username.(string),
+		FileSha1: fileSha1,
+		FileName: fileName,
+	}
+	fmt.Println(userFile)
+
+	//业务逻辑
+	if err := logic.ChunkComplete(file, userFile, uploadID); err != nil {
+		zap.L().Error("logic.ChunkComplete failed", zap.Error(err))
+		ResponseError(c, CodeError)
+	} else {
+		//返回响应
+		ResponseSuccess(c, nil)
+	}
 }

@@ -14,6 +14,8 @@ import (
 	"math"
 	"mime/multipart"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func FileUpLoad(file multipart.File, header *multipart.FileHeader, userid int64, username string) error {
@@ -123,7 +125,7 @@ func ChunkInit(user *models.User, f *models.ChunkInitParam) error {
 
 func ChunkUpLoad(file multipart.File, header *multipart.FileHeader, uploadID string, blockIdx string, userid int64, username string) error {
 	// 创建一个文件，文件名为filename，这里的返回值newFile也是一个File指针
-	addr := viper.GetString("file.path") + uploadID + blockIdx
+	addr := viper.GetString("file.path") + "/" + uploadID + "/" + blockIdx
 	newFile, err := os.Create(addr)
 	if err != nil {
 		zap.L().Error("os.Create failed", zap.Error(err))
@@ -144,5 +146,43 @@ func ChunkUpLoad(file multipart.File, header *multipart.FileHeader, uploadID str
 		zap.L().Error("redis.UpDataBlockInfo", zap.Error(err))
 		return err
 	}
+	return nil
+}
+
+func ChunkComplete(file *models.File, userFile *models.UserFile, uploadID string) error {
+	//连接redis判断是否所有分块完成上传
+	data, err := redis.GetAllChunkInfo(uploadID)
+	if err != nil {
+		zap.L().Error("redis.GetAllChunkInfo failed", zap.Error(err))
+		return err
+	}
+	chunkCount := 0
+	totalCount := 0
+	for k, v := range data {
+		if k == "chunk_count" {
+			count, _ := strconv.Atoi(v)
+			chunkCount = count
+		} else if strings.HasPrefix(k, "block_idx_") && v == "1" {
+			totalCount++
+		}
+	}
+	if totalCount != chunkCount {
+		err = errors.New("chunk upload failed")
+		zap.L().Error("chunk upload failed", zap.Error(err))
+		return err
+	}
+
+	//TODO:合并分块
+
+	//更新文件表与用户文件表
+	if err = mysql.InsertFile(file); err != nil {
+		zap.L().Error("mysql.InsertFile failed", zap.Error(err))
+		return err
+	}
+	if err = mysql.InsertUserFile(userFile); err != nil {
+		zap.L().Error("mysql.InsertUserFile failed", zap.Error(err))
+		return err
+	}
+
 	return nil
 }
